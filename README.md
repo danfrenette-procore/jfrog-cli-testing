@@ -1,36 +1,107 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# JFrog CLI Troubleshooting Guide for Curation Audit on Yarn Projects
 
-## Getting Started
+This repository contains a sample yarn project that demonstrates issues we're experiencing with the JFrog CLI tool when working with yarn-based projects.
 
-First, run the development server:
+## Prerequisites
+
+- macOS (this guide uses Homebrew for installation)
+- Node.js and yarn installed
+- Homebrew installed
+
+## Installing JFrog CLI
+
+1. Open your terminal and run the following command to install JFrog CLI using Homebrew:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+brew install jfrog-cli
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Verify the installation by checking the version:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+jfrog -v
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+The most recent version of the JFrog CLI is 2.74.0. which will be shown in the output:
 
-## Learn More
+```
+jf version 2.74.0
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Project Setup
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Clone this repository:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+git clone https://github.com/danfrenette-procore/jfrog-cli-testing
+cd jfrog-cli-testing
+```
 
-## Deploy on Vercel
+2. Install yarn dependencies:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+yarn install
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Reproducing the Issue
+
+The issue occurs when trying to use JFrog CLI with yarn projects. To reproduce:
+
+1. Configure JFrog CLI to use your Artifactory instance:
+
+Follow the prompts to configure your JFrog platform instance.
+
+2. Attempt to run curation with the JFrog CLI:
+
+Use debug mode to gather more information about the issue.
+
+```bash
+export JFROG_CLI_LOG_LEVEL=DEBUG
+jf ca
+```
+
+3. Observe the error:
+
+```
+11:05:09 [Debug] JFrog CLI version: 2.74.0
+11:05:09 [Debug] OS/Arch: darwin/arm64
+11:05:09 [Debug] Trace ID for JFrog Platform logs: 688b8649fc23f3d2
+11:05:09 [Debug] Using <Procore Artifactory> server-id configuration
+11:05:09 [🔵Info] Log path: /Users/danfrenette/.jfrog/logs/jfrog-cli.2025-03-11.11-05-09.44188.log
+11:05:09 [Debug] Artifactory response: 200
+11:05:09 [Debug] Artifactory Call Home: Sending info...
+11:05:09 [Debug] Sending HTTP POST request to: https://artifacts.procoretech-qa.com/artifactory/api/system/usage
+11:05:09 [Debug] Sending HTTP POST request to: https://artifacts.procoretech-qa.com/jfconnect/api/v1/backoffice/metrics/log
+```
+
+4. Observe the logs:
+
+```
+[Info] Running curation audit on project: /Users/danfrenette/code/procore/jfrog-cli-testing
+[Debug] Sending HTTP GET request to: https://artifacts.procoretech-qa.com/artifactory/api/system/version
+[Debug] mapped 1 working directories with indicators/descriptors:
+{
+  "/Users/danfrenette/code/procore/jfrog-cli-testing": [
+    "/Users/danfrenette/code/procore/jfrog-cli-testing/package.json",
+    "/Users/danfrenette/code/procore/jfrog-cli-testing/yarn.lock"
+  ]
+}
+[Debug] Detected 1 technologies at /Users/danfrenette/code/procore/jfrog-cli-testing: [yarn].
+[Info] Detected: yarn.
+[Info] It looks like this project uses 'yarn' to download its dependencies. This package manager however isn't supported by this command.
+```
+
+
+## Expected Behavior
+
+JFrog CLI should work seamlessly with yarn projects, similar to how it works with npm projects.
+
+## Actual Behavior
+
+The JFrog CLI should not throw an error about the unsupported package manager.
+
+## Contact
+
+If you need additional information or have questions about this issue, please contact:
+
+daniel.frenette-contractor@procore.com
